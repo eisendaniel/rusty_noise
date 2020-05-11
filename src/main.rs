@@ -15,6 +15,24 @@ fn main() {
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header().unwrap();
 
+    let mut pixel: u32 = 0;
+    loop {
+        if pixel >= width * height {
+            break;
+        }
+        red = rand::thread_rng().gen_range(0, depth);
+        if is_color {
+            green = rand::thread_rng().gen_range(0, depth);
+            blue = rand::thread_rng().gen_range(0, depth);
+            file.write_all(format!("{} {} {}\n", red, green, blue).as_bytes())
+                .expect("write failed");
+        } else {
+            file.write_all(format!("{} {} {}\n", red, red, red).as_bytes())
+                .expect("write failed");
+        }
+        pixel += 1;
+    }
+
     let data = [255, 0, 0, 0, 0, 0]; // An array containing a RGBA sequence. First pixel is red and second pixel is black.
     writer.write_image_data(&data).unwrap(); // Save
 }
