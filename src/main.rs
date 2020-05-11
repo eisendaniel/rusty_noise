@@ -4,35 +4,28 @@ use std::io::BufWriter;
 use std::path::Path;
 
 fn main() {
-    // For reading and opening files
+    const WIDTH: u32 = 1920;
+    const HEIGHT: u32 = 1080;
 
+    // For reading and opening files
     let path = Path::new(r"noise.png");
     let file = File::create(path).unwrap();
     let ref mut w = BufWriter::new(file);
-
-    let mut encoder = png::Encoder::new(w, 2, 1); // Width is 2 pixels and height is 1.
+    let mut encoder = png::Encoder::new(w, WIDTH, HEIGHT);
     encoder.set_color(png::ColorType::RGB);
     encoder.set_depth(png::BitDepth::Eight);
     let mut writer = encoder.write_header().unwrap();
 
-    let mut pixel: u32 = 0;
+    const SIZE: u32 = WIDTH * HEIGHT * 3;
+    let mut data = vec![0; SIZE as usize];
+
+    let mut sub_pixel = 0;
     loop {
-        if pixel >= width * height {
+        if sub_pixel >= SIZE {
             break;
         }
-        red = rand::thread_rng().gen_range(0, depth);
-        if is_color {
-            green = rand::thread_rng().gen_range(0, depth);
-            blue = rand::thread_rng().gen_range(0, depth);
-            file.write_all(format!("{} {} {}\n", red, green, blue).as_bytes())
-                .expect("write failed");
-        } else {
-            file.write_all(format!("{} {} {}\n", red, red, red).as_bytes())
-                .expect("write failed");
-        }
-        pixel += 1;
+        data[sub_pixel as usize] = rand::thread_rng().gen_range(0, 255);
+        sub_pixel += 1;
     }
-
-    let data = [255, 0, 0, 0, 0, 0]; // An array containing a RGBA sequence. First pixel is red and second pixel is black.
     writer.write_image_data(&data).unwrap(); // Save
 }
