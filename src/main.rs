@@ -1,40 +1,20 @@
 use rand::Rng;
-use std::io::Write;
+use std::fs::File;
+use std::io::BufWriter;
+use std::path::Path;
 
 fn main() {
-    let path = "noise.ppm";
+    // For reading and opening files
 
-    let magic = "P3";
-    let width: u32 = 1920;
-    let height: u32 = 1080;
-    let depth = 255;
+    let path = Path::new(r"noise.png");
+    let file = File::create(path).unwrap();
+    let ref mut w = BufWriter::new(file);
 
-    let is_color = true;
-    let mut red: u8;
-    let mut green: u8;
-    let mut blue: u8;
+    let mut encoder = png::Encoder::new(w, 2, 1); // Width is 2 pixels and height is 1.
+    encoder.set_color(png::ColorType::RGB);
+    encoder.set_depth(png::BitDepth::Eight);
+    let mut writer = encoder.write_header().unwrap();
 
-    //TODO CLI args
-
-    let mut file = std::fs::File::create(path).expect("creation failed");
-    file.write_all(format!("{}\n{}\n{}\n{}\n", magic, width, height, depth).as_bytes())
-        .expect("write failed");
-
-    let mut pixel: u32 = 0;
-    loop {
-        if pixel >= width * height {
-            break;
-        }
-        red = rand::thread_rng().gen_range(0, depth);
-        if is_color {
-            green = rand::thread_rng().gen_range(0, depth);
-            blue = rand::thread_rng().gen_range(0, depth);
-            file.write_all(format!("{} {} {}\n", red, green, blue).as_bytes())
-                .expect("write failed");
-        } else {
-            file.write_all(format!("{} {} {}\n", red, red, red).as_bytes())
-                .expect("write failed");
-        }
-        pixel += 1;
-    }
+    let data = [255, 0, 0, 0, 0, 0]; // An array containing a RGBA sequence. First pixel is red and second pixel is black.
+    writer.write_image_data(&data).unwrap(); // Save
 }
