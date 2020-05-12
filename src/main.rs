@@ -15,10 +15,30 @@ fn gen_pixels(data: &mut Vec<u8>, size: u32) {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
     //default setiings
-    let is_color = false;
+    let mut is_color = false;
     let mut width = 128;
     let mut height = 128;
+
+    //parse arg settings
+    if args.len() <= 1 {
+    } else if args.len() <= 2 {
+        let res: Vec<&str> = args[1].split("x").collect();
+        width = res[0].parse().unwrap();
+        height = res[1].parse().unwrap();
+    } else {
+        let res: Vec<&str> = args[1].split("x").collect();
+        width = res[0].parse().unwrap();
+        height = res[1].parse().unwrap();
+        match args[2].as_str() {
+            "--color" => is_color = true,
+            "--greyscale" => is_color = false,
+            _ => println!("invalid color setting"),
+        }
+    }
+
     let mut size = width * height;
 
     // For reading and opening files
