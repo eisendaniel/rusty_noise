@@ -2,7 +2,6 @@ use regex::Regex;
 use std::env;
 use std::fs::File;
 use std::io::BufWriter;
-use std::path::Path;
 
 struct Settings {
     is_color: bool,
@@ -53,9 +52,7 @@ fn main() {
     parse_args(&mut settings);
 
     // For reading and opening files
-    let path = Path::new(r"noise.png");
-    let file = File::create(path).unwrap();
-    let ref mut w = BufWriter::new(file);
+    let ref mut w = BufWriter::new(File::create("noise.png").unwrap());
     let mut encoder = png::Encoder::new(w, settings.width, settings.height);
     encoder.set_depth(png::BitDepth::Eight);
 
