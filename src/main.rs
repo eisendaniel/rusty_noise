@@ -1,7 +1,6 @@
+use rand::{distributions::Uniform, prelude::*};
 use regex::Regex;
-use std::env;
-use std::fs::File;
-use std::io::BufWriter;
+use std::{env, fs::File, io::BufWriter, iter};
 
 struct Settings {
     is_color: bool,
@@ -29,24 +28,22 @@ fn parse_args(settings: &mut Settings) {
     }
 }
 
-fn gen_pixels(data: &mut Vec<u8>, size: u32) {
-    let mut pixel = 0;
-    loop {
-        if pixel >= size {
-            break;
-        }
-        data.push(rand::random::<u8>());
-        pixel += 1;
-    }
+fn random_pixels(size: usize) -> Vec<u8> {
+    let mut rng = rand::thread_rng();
+    let uni = Uniform::new_inclusive(0, 255);
+
+    iter::repeat_with(|| uni.sample(&mut rng))
+        .take(size)
+        .collect()
 }
 
 fn main() {
     //default setiings
     let mut settings = Settings {
         is_color: false,
-        width: 128,
-        height: 128,
-        size: 128 * 128,
+        width: 1000,
+        height: 1000,
+        size: 1000 * 1000,
     };
 
     parse_args(&mut settings);
@@ -62,7 +59,6 @@ fn main() {
     }
 
     let mut writer = encoder.write_header().unwrap();
-    let mut data: Vec<u8> = Vec::new();
-    gen_pixels(&mut data, settings.size);
+    let data = random_pixels(settings.size as usize);
     writer.write_image_data(&data).unwrap();
 }
